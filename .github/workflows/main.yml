@@ -1,0 +1,127 @@
+name: 自动部署
+
+# 当有改动推送到main分支时启动Action
+
+on:
+
+  push:
+
+    branches:
+
+      - main
+
+      #根据自己仓库的情况进行更改(源码在哪一分支就填哪个)
+
+  release:
+
+    types:
+
+      - published
+
+jobs:
+
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: 检查分支
+
+        uses: actions/checkout@v2
+
+        with:
+
+          ref: main
+
+          fetch-depth: 0
+
+      - name: Sync local file timestamps
+
+        run: |
+
+          git ls-files -z | while read -d '' path; do touch -d $(git log -1 --format="@%ct" "$path") "$path"; done
+
+      - name: 安装 Node
+
+        uses: actions/setup-node@v1
+
+        with:
+
+          node-version: "16.x"
+
+      - name: 安装 Hexo
+
+        run: |
+
+          export TZ='Asia/Shanghai'
+
+          npm install hexo-cli -g
+
+        
+
+      - name: 缓存 Hexo
+
+        id: cache-npm
+
+        uses: actions/cache@v3
+
+        env:
+
+          cache-name: cache-node-modules
+
+        with:
+
+          path: node_modules
+
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+
+          restore-keys: |
+
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+
+            ${{ runner.os }}-build-
+
+            ${{ runner.os }}-
+
+      - name: 安装依赖
+
+        if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+
+        run: |
+
+          npm install hexo-renderer-pug hexo-renderer-stylus --save
+
+          npm install --save
+
+      - name: 生成静态文件
+
+        run: |
+
+          hexo clean
+
+          hexo generate
+
+          
+
+    
+
+      - name: 部署到Github
+
+        run: |
+
+          cd ./public
+
+          git init
+
+          git config --global user.name "Alcexn"
+
+          git config --global user.email "alcexn@163.com"
+
+          git add .
+
+          git commit -m '${{ github.event.head_commit.message }}'
+          
+          git push --force --all https://alcexn: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@github.com/Alcexn/alcexn.github.io
+          
+          
