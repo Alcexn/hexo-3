@@ -1,6 +1,6 @@
 name: 自动部署
 
-# 当有改动推送到main分支时启动Action
+# 当有改动推送到master分支时启动Action
 
 on:
 
@@ -10,7 +10,7 @@ on:
 
       - main
 
-      #根据自己仓库的情况进行更改(源码在哪一分支就填哪个)
+      #2020年10月后github新建仓库默认分支改为main，注意更改
 
   release:
 
@@ -58,7 +58,7 @@ jobs:
 
           npm install hexo-cli -g
 
-        
+          
 
       - name: 缓存 Hexo
 
@@ -90,7 +90,7 @@ jobs:
 
         run: |
 
-          npm install hexo-renderer-pug hexo-renderer-stylus --save
+          npm install gulp-cli -g #全局安装gulp
 
           npm install --save
 
@@ -102,9 +102,9 @@ jobs:
 
           hexo generate
 
-          
+          gulp
 
-    
+      
 
       - name: 部署到Github
 
@@ -121,8 +121,6 @@ jobs:
           git add .
 
           git commit -m '${{ github.event.head_commit.message }}'
-          
-          git push --force --all https://Alcexn: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@github.com/Alcexn/hexov
-          
-          
-          
+
+          git push --force --all https://Alcexn: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@github.com/Alcexn/alcexn.github.io
+
