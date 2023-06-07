@@ -122,6 +122,6 @@ jobs:
 
           git commit -m '${{ github.event.head_commit.message }}'
           
-          git push --force --all https://alcexn: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@github.com/Alcexn/alcexn.github.io
+          git push --force --all https://alcexn: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@github.com/Alcexn/hexov
           
           
